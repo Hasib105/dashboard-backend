@@ -43,23 +43,29 @@ class ChartDataAPIView(APIView):
         today = now().date()
         last_30_days = today - timedelta(days=30)
         
-        # Example data aggregation for Sessions
+        # Aggregate data for Sessions
         session_data = (
             Session.objects.filter(date__gte=last_30_days)
             .values("date")
-            .annotate(total_sessions=Sum("session_count"), unique_visitors=Sum("unique_visitors"))
+            .annotate(
+                total_sessions=Sum("session_count"), 
+                unique_visitors=Sum("unique_visitors")
+            )
             .order_by("date")
         )
 
-        # Example data aggregation for Orders
+        # Aggregate data for Orders
         order_data = (
             Order.objects.filter(order_date__date__gte=last_30_days)
             .values("order_date__date")
-            .annotate(total_orders=Count("id"), total_revenue=Sum("quantity") * Sum("product__price"))
+            .annotate(
+                total_orders=Count("id"),
+                total_revenue=Sum("quantity") * Sum("product__price")  # Ensure `product__price` is accessible
+            )
             .order_by("order_date__date")
         )
         
-        # Example data aggregation for Transactions
+        # Aggregate data for Transactions
         transaction_data = (
             Transaction.objects.filter(transaction_date__date__gte=last_30_days)
             .values("transaction_date__date")
